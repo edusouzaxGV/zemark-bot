@@ -3,7 +3,8 @@ from flask import Flask, request
 
 app = Flask(__name__)
 TOKEN = "8562677208:AAG_3xAQaOMz7c6haWkarYcHiLzooV_o00M"
-NVIDIA_API_KEY = "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" # Ajuste se necessário
+# Agora buscamos a chave diretamente das variáveis de ambiente
+API_KEY = os.environ.get("NVIDIA_API_KEY")
 
 @app.route("/", methods=["POST"])
 def webhook():
@@ -12,28 +13,30 @@ def webhook():
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
         
-        # 1. Enviar typing no Telegram
+        # Indica que está processando
         requests.get(f"https://api.telegram.org/bot{TOKEN}/sendChatAction?chat_id={chat_id}&action=typing")
         
-        # 2. Chamar a API da NVIDIA (DeepSeek V3.2)
-        response = requests.post(
-            "https://integrate.api.nvidia.com/v1/chat/completions",
-            headers={"Authorization": f"Bearer {NVIDIA_API_KEY}"},
-            json={
-                "model": "deepseek-ai/deepseek-v3", # NVIDIA usa o ID do modelo
-                "messages": [{"role": "user", "content": text}],
-                "max_tokens": 1024,
-                "stream": False
-            }
-        )
-        
-        # 3. Processar resposta da NVIDIA
         try:
-            resposta = response.json()['choices'][0]['message']['content']
-        except:
-            resposta = "🧠 ZÉMARK: Tive um erro técnico na conexão com a NVIDIA."
+            # Chamada para NVIDIA
+            response = requests.post(
+                "https://integrate.api.nvidia.com/v1/chat/completions",
+                headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "model": "deepseek-ai/deepseek-v3",
+                    "messages": [{"role": "user", "content": text}],
+                    "max_tokens": 1024
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                resposta = response.json()['choices'][0]['message']['content']
+            else:
+                resposta = f"🧠 ZÉMARK: Erro NVIDIA ({response.status_code}): {response.text[:50]}"
+        except Exception as e:
+            resposta = f"🧠 ZÉMARK: Erro de conexão: {str(e)}"
         
-        # 4. Responder no Telegram
+        # Envia resposta
         requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", 
                       json={"chat_id": chat_id, "text": resposta, "parse_mode": "Markdown"})
     return "ok", 200
