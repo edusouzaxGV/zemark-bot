@@ -2,43 +2,56 @@ import os, requests
 from flask import Flask, request
 
 app = Flask(__name__)
-TOKEN = "8562677208:AAG_3xAQaOMz7c6haWkarYcHiLzooV_o00M"
-# Agora buscamos a chave diretamente das variáveis de ambiente
+
+# Tokens puxados do Render (Configuração de Ambiente)
+TOKENS = {
+    "zemark": os.environ.get("TOKEN_ZEMARK"),
+    "dudu": os.environ.get("TOKEN_DUDU"),
+    "cassio": os.environ.get("TOKEN_CASSIO")
+}
 API_KEY = os.environ.get("NVIDIA_API_KEY")
 
-@app.route("/", methods=["POST"])
-def webhook():
+def chat_com_nvidia(text):
+    try:
+        response = requests.post(
+            "https://integrate.api.nvidia.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
+            json={
+                "model": "meta/llama-3.3-70b-instruct", # Testando com Llama (mais estável na NVIDIA)
+                "messages": [{"role": "user", "content": text}],
+                "max_tokens": 1024
+            }, timeout=30
+        )
+        return response.json()['choices'][0]['message']['content'] if response.status_code == 200 else f"Erro NVIDIA: {response.status_code}"
+    except Exception as e:
+        return f"Erro conexão: {str(e)}"
+
+# Rota para cada Bot
+@app.route("/zemark", methods=["POST"])
+def hook_zemark():
     data = request.get_json()
-    if "message" in data:
-        chat_id = data["message"]["chat"]["id"]
-        text = data["message"].get("text", "")
-        
-        # Indica que está processando
-        requests.get(f"https://api.telegram.org/bot{TOKEN}/sendChatAction?chat_id={chat_id}&action=typing")
-        
-        try:
-            # Chamada para NVIDIA
-            response = requests.post(
-                "https://integrate.api.nvidia.com/v1/chat/completions",
-                headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
-                json={
-                    "model": "deepseek-ai/deepseek-v3",
-                    "messages": [{"role": "user", "content": text}],
-                    "max_tokens": 1024
-                },
-                timeout=30
-            )
-            
-            if response.status_code == 200:
-                resposta = response.json()['choices'][0]['message']['content']
-            else:
-                resposta = f"🧠 ZÉMARK: Erro NVIDIA ({response.status_code}): {response.text[:50]}"
-        except Exception as e:
-            resposta = f"🧠 ZÉMARK: Erro de conexão: {str(e)}"
-        
-        # Envia resposta
-        requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", 
-                      json={"chat_id": chat_id, "text": resposta, "parse_mode": "Markdown"})
+    chat_id = data["message"]["chat"]["id"]
+    text = data["message"].get("text", "")
+    resposta = "ZÉMARK (IA): " + chat_com_nvidia(text)
+    requests.post(f"https://api.telegram.org/bot{TOKENS['zemark']}/sendMessage", json={"chat_id": chat_id, "text": resposta})
+    return "ok", 200
+
+@app.route("/dudu", methods=["POST"])
+def hook_dudu():
+    data = request.get_json()
+    chat_id = data["message"]["chat"]["id"]
+    text = data["message"].get("text", "")
+    resposta = "DUDU (IA): " + chat_com_nvidia(text)
+    requests.post(f"https://api.telegram.org/bot{TOKENS['dudu']}/sendMessage", json={"chat_id": chat_id, "text": resposta})
+    return "ok", 200
+
+@app.route("/cassio", methods=["POST"])
+def hook_cassio():
+    data = request.get_json()
+    chat_id = data["message"]["chat"]["id"]
+    text = data["message"].get("text", "")
+    resposta = "CASSIO (IA): " + chat_com_nvidia(text)
+    requests.post(f"https://api.telegram.org/bot{TOKENS['cassio']}/sendMessage", json={"chat_id": chat_id, "text": resposta})
     return "ok", 200
 
 if __name__ == "__main__":
