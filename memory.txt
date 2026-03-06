@@ -1,0 +1,18 @@
+import os, requests
+from flask import Flask, request
+
+app = Flask(__name__)
+# ... (TOKENS e API_KEY igual ao anterior) ...
+
+def get_memoria():
+    # Isso busca o contexto atualizado direto do GitHub (RAW)
+    url = "https://raw.githubusercontent.com/edusouzaxGV/zemark-bot/main/memoria.txt"
+    try:
+        return requests.get(url).text
+    except:
+        return "Nenhuma memória definida."
+
+def chat_com_nvidia(text, bot_name):
+    memoria = get_memoria() # O BOT LÊ A MEMÓRIA AGORA
+    system_prompt = f"Contexto Atual: {memoria}. Você é {bot_name}."
+    # ... resto do código NVIDIA ...
