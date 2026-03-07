@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sidebar: #0f1117;
+    --content-bg: #12141f;
+    --card-bg: #1e2035;
+    --border: #2a2d45;
+    --accent: #6366f1;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--content-bg);
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e2035;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #3d4266;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6366f1;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-card-bg border border-border rounded-xl p-5;
+  }
+
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+
+  .btn-ghost {
+    @apply text-gray-400 hover:text-white hover:bg-white/5 px-3 py-2 rounded-lg transition-colors;
+  }
+
+  .input-field {
+    @apply bg-[#1a1d2e] border border-border rounded-lg px-3 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-accent transition-colors w-full;
+  }
+
+  .label {
+    @apply text-xs font-medium text-gray-400 uppercase tracking-wider;
+  }
+
+  .status-running {
+    @apply bg-amber-500/20 text-amber-400 border border-amber-500/30;
+  }
+
+  .status-completed {
+    @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+  }
+
+  .status-failed {
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  }
+
+  .status-pending {
+    @apply bg-slate-500/20 text-slate-400 border border-slate-500/30;
+  }
+
+  .terminal-line {
+    @apply font-mono text-sm leading-relaxed py-0.5;
+  }
+
+  .terminal-thought {
+    @apply text-indigo-300;
+  }
+
+  .terminal-tool {
+    @apply text-amber-300;
+  }
+
+  .terminal-result {
+    @apply text-emerald-300;
+  }
+
+  .terminal-error {
+    @apply text-red-300;
+  }
+
+  .terminal-system {
+    @apply text-gray-500;
+  }
+}
+
+/* Animation for pulsing dot */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.pulse-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
