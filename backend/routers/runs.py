@@ -34,7 +34,7 @@ async def execute(run_in: schemas.RunCreate, background_tasks: BackgroundTasks, 
         finally:
             task_db.close()
 
-    background_tasks.add_task(asyncio.create_task, run_task())
+    asyncio.create_task(run_task())
     return run
 
 @router.websocket("/{run_id}/stream")

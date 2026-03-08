@@ -169,8 +169,10 @@ async def _run_mock(run: models.Run, crew_db: models.Crew, db: Session):
         ("final_answer", f"# Resultado da Execução da Crew: {crew_db.name}\n\nTarefa concluída com sucesso. O agente processou todas as informações e gerou uma resposta detalhada baseada nos inputs fornecidos.\n\n**Inputs recebidos:** {json.dumps(run.inputs, ensure_ascii=False)}\n\n**Conclusão:** Sistema funcionando corretamente."),
     ]
 
-    for i, agent in enumerate(agents or [{"role": "Agente Padrão", "name": "Agent"}]):
-        agent_name = getattr(agent, "role", agent.get("role", "Agent")) if hasattr(agent, "role") else agent.get("role", "Agent")
+    if not agents:
+        agents = [type("MockAgent", (), {"role": "Agente Padrão"})()]
+    for i, agent in enumerate(agents):
+        agent_name = getattr(agent, "role", "Agent")
         await _emit(run_id, "agent_start", f"Agente '{agent_name}' iniciando execução", agent_name=agent_name)
         _save_step(db, run_id, "agent_start", f"Agente iniciando", agent_name=agent_name)
 
