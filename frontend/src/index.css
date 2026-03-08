@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 7%;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 71% 7%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 263 85% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 216 34% 17%;
+    --accent-foreground: 213 31% 91%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 263 85% 65%;
+    --radius: 0.5rem;
+    --sidebar: 224 71% 5%;
+    --sidebar-foreground: 213 31% 91%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-muted; }
+::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground; }
+
+/* Terminal styles */
+.terminal { @apply font-mono text-sm bg-black/60 rounded-lg p-4 overflow-auto max-h-[600px]; }
+.terminal .thought { @apply text-yellow-400; }
+.terminal .action { @apply text-blue-400; }
+.terminal .tool_call { @apply text-orange-400; }
+.terminal .tool_result { @apply text-green-400; }
+.terminal .final_answer { @apply text-purple-400; }
+.terminal .error { @apply text-red-400; }
+.terminal .status { @apply text-gray-400; }
+.terminal .agent_start { @apply text-cyan-400 font-bold; }
